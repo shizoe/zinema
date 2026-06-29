@@ -1,0 +1,30 @@
+{
+  "_comment": "Template. Replace app/google-services.json with the real file downloaded from the Firebase console (Project settings > Your apps > Android, package com.zinema.app). The committed google-services.json is a non-functional PLACEHOLDER so the project configures and builds; Analytics/Crashlytics will not report until a real file is dropped in.",
+  "project_info": {
+    "project_number": "<FIREBASE_PROJECT_NUMBER>",
+    "project_id": "<FIREBASE_PROJECT_ID>",
+    "storage_bucket": "<FIREBASE_PROJECT_ID>.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:<PROJECT_NUMBER>:android:<APP_HASH>",
+        "android_client_info": {
+          "package_name": "com.zinema.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "<ANDROID_API_KEY>"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

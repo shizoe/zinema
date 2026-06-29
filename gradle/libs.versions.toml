@@ -1,0 +1,133 @@
+# Version catalog — Project Zinema
+# Source of truth: ANDROID_BLUEPRINT.md §2.1 / §2.2
+# Entries below the "Additions required by the module graph" marker are
+# necessary completions referenced by the blueprint body but absent from §2.2.
+
+[versions]
+kotlin                  = "2.0.21"
+agp                     = "8.7.3"
+compose-bom             = "2024.12.01"
+compose-tv              = "1.0.0"
+media3                  = "1.4.1"
+hilt                    = "2.52"
+room                    = "2.6.1"
+retrofit                = "2.11.0"
+okhttp                  = "4.12.0"
+coil                    = "2.7.0"
+kotlinx-serialization   = "1.7.3"
+kotlinx-coroutines      = "1.9.0"
+navigation-compose      = "2.8.4"
+security-crypto         = "1.1.0-alpha06"
+datastore               = "1.1.1"
+splash-screen           = "1.0.1"
+accompanist-systemuicontroller = "0.36.0"
+# --- Additions required by the module graph (see PHASE-0 doc §Deviations) ---
+javax-inject            = "1"
+
+[libraries]
+# --- Compose ---
+compose-bom                     = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+compose-ui                      = { group = "androidx.compose.ui", name = "ui" }
+compose-ui-tooling              = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-ui-tooling-preview      = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-material3               = { group = "androidx.compose.material3", name = "material3" }
+compose-runtime                 = { group = "androidx.compose.runtime", name = "runtime" }
+compose-foundation              = { group = "androidx.compose.foundation", name = "foundation" }
+compose-animation               = { group = "androidx.compose.animation", name = "animation" }
+compose-activity                = { group = "androidx.activity", name = "activity-compose", version = "1.9.3" }
+compose-viewmodel               = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version = "2.8.7" }
+compose-lifecycle-runtime       = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version = "2.8.7" }
+
+# --- Compose TV ---
+tv-material                     = { group = "androidx.tv", name = "tv-material", version.ref = "compose-tv" }
+tv-foundation                   = { group = "androidx.tv", name = "tv-foundation", version.ref = "compose-tv" }
+
+# --- Navigation ---
+navigation-compose              = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
+
+# --- Hilt ---
+hilt-android                    = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler                   = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+hilt-navigation-compose         = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
+
+# --- Room ---
+room-runtime                    = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx                        = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler                   = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+# --- Network ---
+retrofit-core                   = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-kotlinx-serialization  = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
+okhttp-core                     = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging                  = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+kotlinx-serialization-json      = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+# --- Coil ---
+coil-compose                    = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+coil-video                      = { group = "io.coil-kt", name = "coil-video", version.ref = "coil" }
+
+# --- Media3 (ExoPlayer) ---
+media3-exoplayer                = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+media3-exoplayer-dash           = { group = "androidx.media3", name = "media3-exoplayer-dash", version.ref = "media3" }
+media3-exoplayer-hls            = { group = "androidx.media3", name = "media3-exoplayer-hls", version.ref = "media3" }
+media3-ui                       = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
+media3-session                  = { group = "androidx.media3", name = "media3-session", version.ref = "media3" }
+media3-datasource-okhttp        = { group = "androidx.media3", name = "media3-datasource-okhttp", version.ref = "media3" }
+
+# --- Security ---
+security-crypto                 = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
+datastore-preferences           = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+
+# --- Coroutines ---
+coroutines-android              = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+
+# --- Splash Screen ---
+splashscreen                    = { group = "androidx.core", name = "core-splashscreen", version.ref = "splash-screen" }
+
+# --- Accompanist ---
+accompanist-systemuicontroller  = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist-systemuicontroller" }
+
+# --- Firebase ---
+firebase-bom                    = { group = "com.google.firebase", name = "firebase-bom", version = "33.7.0" }
+firebase-analytics              = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
+firebase-crashlytics            = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
+
+# --- Additions required by the module graph (see PHASE-0 doc §Deviations) ---
+coroutines-core                 = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+javax-inject                    = { group = "javax.inject", name = "javax.inject", version.ref = "javax-inject" }
+
+[bundles]
+# Convenience groupings to keep module build files terse and consistent.
+compose = [
+    "compose-ui",
+    "compose-ui-tooling-preview",
+    "compose-material3",
+    "compose-foundation",
+    "compose-animation",
+    "compose-runtime",
+]
+tv = [
+    "tv-material",
+    "tv-foundation",
+]
+media3 = [
+    "media3-exoplayer",
+    "media3-exoplayer-dash",
+    "media3-exoplayer-hls",
+    "media3-ui",
+    "media3-session",
+    "media3-datasource-okhttp",
+]
+
+[plugins]
+android-application     = { id = "com.android.application", version.ref = "agp" }
+android-library         = { id = "com.android.library", version.ref = "agp" }
+kotlin-android          = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm              = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt             = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-serialization    = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+hilt                    = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+google-services         = { id = "com.google.gms.google-services", version = "4.4.2" }
+crashlytics             = { id = "com.google.firebase.crashlytics", version = "3.0.2" }
+ksp                     = { id = "com.google.devtools.ksp", version = "2.0.21-1.0.28" }
+compose-compiler        = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

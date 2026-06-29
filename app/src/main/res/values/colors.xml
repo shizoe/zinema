@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors ZinemaColors in core:ui (blueprint §10.1). Used for the window
+         background + splash screen before Compose takes over. -->
+    <color name="zinema_background">#FF141414</color>
+    <color name="zinema_primary">#FFE50914</color>
+</resources>

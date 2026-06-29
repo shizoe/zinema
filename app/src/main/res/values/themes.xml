@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Base application theme. UI is Compose; this XML theme only governs the
+         window chrome (dark, no action bar, Netflix-black background). -->
+    <style name="Theme.Zinema" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/zinema_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- Splash theme applied to MainActivity. installSplashScreen() hands off to
+         Theme.Zinema after the cold-start animation (androidx.core:core-splashscreen). -->
+    <style name="Theme.Zinema.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/zinema_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.Zinema</item>
+    </style>
+
+</resources>

@@ -1,0 +1,33 @@
+# --- Gradle ---
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- Android Studio / IntelliJ ---
+.idea/
+*.iml
+.kotlin/
+captures/
+.cxx/
+
+# --- Local config (machine-specific; never commit) ---
+local.properties
+
+# --- Keystores & signing ---
+*.jks
+*.keystore
+keystore.properties
+
+# --- Secrets ---
+# The committed app/google-services.json is a non-functional PLACEHOLDER.
+# When you drop in a REAL Firebase file with live keys, uncomment the next line
+# to keep it out of version control, and rely on google-services.json.example.
+# app/google-services.json
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log

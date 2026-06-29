@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV launcher banner (320x180 per Leanback spec). Placeholder art:
+     Netflix-black field, red disc, white play glyph. Replace before release. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+
+    <path
+        android:fillColor="#FF141414"
+        android:pathData="M0,0h320v180h-320z" />
+
+    <path
+        android:fillColor="#FFE50914"
+        android:pathData="M160,54a36,36 0 1,0 0.01,0z" />
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M150,72L178,90L150,108z" />
+</vector>

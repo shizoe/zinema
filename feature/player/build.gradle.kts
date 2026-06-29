@@ -1,0 +1,57 @@
+// feature:player — ExoPlayer integration, controls, PiP, track/quality selectors.
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
+}
+
+android {
+    namespace = "com.zinema.app.feature.player"
+    compileSdk = 35
+
+    defaultConfig {
+        minSdk = 26
+        consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+dependencies {
+    implementation(project(":core:domain"))
+    implementation(project(":core:ui"))
+    // Player needs the shared OkHttp client + CloudFront cookie jar for streaming.
+    implementation(project(":core:network"))
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+
+    val composeBom = platform(libs.compose.bom)
+    implementation(composeBom)
+    implementation(libs.bundles.compose)
+    implementation(libs.bundles.tv)
+    implementation(libs.compose.viewmodel)
+    implementation(libs.compose.lifecycle.runtime)
+    implementation(libs.navigation.compose)
+    debugImplementation(libs.compose.ui.tooling)
+
+    // ExoPlayer (Media3)
+    implementation(libs.bundles.media3)
+
+    implementation(libs.coil.compose)
+    implementation(libs.datastore.preferences) // persisted subtitle-language preference (T-051)
+    implementation(libs.coroutines.android)
+}
