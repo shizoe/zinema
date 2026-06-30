@@ -7,6 +7,7 @@ package com.zinema.app.core.domain.model
 data class StreamInfo(
     val streamUrl: String,
     val quality: String,
+    val availableQualities: List<String>,
     val streamProtocol: StreamProtocol,
     val cloudFrontPolicy: String,
     val cloudFrontSignature: String,

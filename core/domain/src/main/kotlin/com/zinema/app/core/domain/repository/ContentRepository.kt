@@ -23,7 +23,12 @@ interface ContentRepository {
      * [com.zinema.app.core.domain.exception.StreamSecurityException] if the URL is
      * not an allowlisted stream host.
      */
-    suspend fun getStreamInfo(subjectId: String, seasonIndex: Int, episodeIndex: Int): StreamInfo
+    suspend fun getStreamInfo(
+        subjectId: String,
+        seasonIndex: Int,
+        episodeIndex: Int,
+        quality: String = "1080",
+    ): StreamInfo
 
     /** Search by free-text query. */
     fun searchContent(query: String): Flow<List<Content>>

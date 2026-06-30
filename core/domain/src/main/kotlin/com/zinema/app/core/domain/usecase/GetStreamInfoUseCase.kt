@@ -11,5 +11,6 @@ class GetStreamInfoUseCase @Inject constructor(
         subjectId: String,
         seasonIndex: Int = 0,
         episodeIndex: Int = 0,
-    ): StreamInfo = contentRepository.getStreamInfo(subjectId, seasonIndex, episodeIndex)
+        quality: String = "1080",
+    ): StreamInfo = contentRepository.getStreamInfo(subjectId, seasonIndex, episodeIndex, quality)
 }

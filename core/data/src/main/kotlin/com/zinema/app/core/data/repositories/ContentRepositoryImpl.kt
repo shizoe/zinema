@@ -80,10 +80,11 @@ class ContentRepositoryImpl @Inject constructor(
         subjectId: String,
         seasonIndex: Int,
         episodeIndex: Int,
+        quality: String,
     ): StreamInfo = withContext(Dispatchers.IO) {
         val response = api.getPlayInfo(subjectId, seasonIndex, episodeIndex)
         val data = response.data ?: error("No play-info for subjectId=$subjectId")
-        val streamInfo = data.toDomain()
+        val streamInfo = data.toDomain(preferredQuality = quality)
         // Never play from an unverified host (blueprint T-026).
         if (!CdnValidator.isStreamHost(streamInfo.streamUrl)) {
             throw StreamSecurityException("Stream host not allowlisted: ${streamInfo.streamUrl}")

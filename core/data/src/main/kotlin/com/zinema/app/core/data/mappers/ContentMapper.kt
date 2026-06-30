@@ -98,6 +98,7 @@ fun PlayInfoData.toDomain(preferredQuality: String = "1080"): StreamInfo {
     return StreamInfo(
         streamUrl = stream.url,
         quality = stream.resolutions,
+        availableQualities = streams.map { it.resolutions }.filter { it.isNotBlank() }.distinct(),
         streamProtocol = when {
             stream.url.endsWith(".mpd") -> StreamProtocol.DASH
             stream.url.endsWith(".m3u8") -> StreamProtocol.HLS
