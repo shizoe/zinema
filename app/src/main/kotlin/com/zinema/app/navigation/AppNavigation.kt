@@ -1,10 +1,24 @@
 package com.zinema.app.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
+import com.zinema.app.core.domain.session.AuthState
+import com.zinema.app.core.ui.theme.ZinemaColors
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -22,8 +36,21 @@ import com.zinema.app.feature.shorttv.ShortTvScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val appViewModel: AppViewModel = hiltViewModel()
+    val authState by appViewModel.authState.collectAsStateWithLifecycle()
 
-    NavHost(navController = navController, startDestination = Screen.Auth.route) {
+    // Force re-auth when the token is rejected/expired mid-session.
+    LaunchedEffect(authState) {
+        if (authState == AuthState.EXPIRED) {
+            navController.navigate(Screen.Auth.route) { popUpTo(0) { inclusive = true } }
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (authState == AuthState.GUEST_EXPIRING) {
+            GuestExpiringBanner(onClick = { navController.navigate(Screen.Auth.route) })
+        }
+        NavHost(navController = navController, startDestination = Screen.Auth.route) {
         composable(Screen.Auth.route) {
             LoginScreen(
                 onAuthenticated = {
@@ -97,5 +124,21 @@ fun AppNavigation() {
                 onVerifyPin = profileViewModel::verifyPin,
             )
         }
+        }
     }
+}
+
+@Composable
+private fun GuestExpiringBanner(onClick: () -> Unit) {
+    Text(
+        text = "Guest access is expiring soon. Tap to log in and keep watching.",
+        color = ZinemaColors.OnBackground,
+        textAlign = TextAlign.Center,
+        fontSize = 12.sp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(ZinemaColors.PrimaryVariant)
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp, horizontal = 16.dp),
+    )
 }

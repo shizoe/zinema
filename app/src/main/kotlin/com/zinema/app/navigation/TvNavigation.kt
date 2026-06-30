@@ -1,10 +1,12 @@
 package com.zinema.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
+import com.zinema.app.core.domain.session.AuthState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +23,14 @@ import com.zinema.app.feature.search.SearchScreen
 @Composable
 fun TvNavigation() {
     val navController = rememberNavController()
+    val appViewModel: AppViewModel = hiltViewModel()
+    val authState by appViewModel.authState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(authState) {
+        if (authState == AuthState.EXPIRED) {
+            navController.navigate(Screen.Auth.route) { popUpTo(0) { inclusive = true } }
+        }
+    }
 
     NavHost(navController = navController, startDestination = Screen.Auth.route) {
         composable(Screen.Auth.route) {

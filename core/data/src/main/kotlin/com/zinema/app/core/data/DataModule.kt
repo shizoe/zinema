@@ -14,12 +14,14 @@ import com.zinema.app.core.data.repositories.PlaybackRepositoryImpl
 import com.zinema.app.core.data.repositories.ProfileRepositoryImpl
 import com.zinema.app.core.data.repositories.SearchHistoryRepositoryImpl
 import com.zinema.app.core.data.repositories.UserRepositoryImpl
+import com.zinema.app.core.data.session.SessionManagerImpl
 import com.zinema.app.core.domain.repository.AuthRepository
 import com.zinema.app.core.domain.repository.ContentRepository
 import com.zinema.app.core.domain.repository.PlaybackRepository
 import com.zinema.app.core.domain.repository.ProfileRepository
 import com.zinema.app.core.domain.repository.SearchHistoryRepository
 import com.zinema.app.core.domain.repository.UserRepository
+import com.zinema.app.core.domain.session.SessionManager
 import com.zinema.app.core.domain.util.ConnectivityObserver
 import dagger.Binds
 import dagger.Module
@@ -27,6 +29,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
 /**
@@ -68,6 +73,10 @@ abstract class DataModule {
     @Singleton
     abstract fun bindProfileRepository(impl: ProfileRepositoryImpl): ProfileRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindSessionManager(impl: SessionManagerImpl): SessionManager
+
     companion object {
 
         @Provides
@@ -88,5 +97,11 @@ abstract class DataModule {
 
         @Provides
         fun provideRecentSearchDao(db: AppDatabase): RecentSearchDao = db.recentSearchDao()
+
+        /** App-lifetime scope for always-on flows (e.g. SessionManager.authState). */
+        @Provides
+        @Singleton
+        fun provideApplicationScope(): CoroutineScope =
+            CoroutineScope(SupervisorJob() + Dispatchers.Default)
     }
 }

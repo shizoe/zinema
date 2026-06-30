@@ -40,7 +40,11 @@ class SigningInterceptor @Inject constructor(
         val ts = System.currentTimeMillis() + tokenStorage.getServerTimeOffsetMs()
         val sortedPathQuery = buildSortedPathQuery(original.url)
         val accept = original.header("Accept") ?: "*/*"
-        val contentType = original.header("Content-Type") ?: ""
+        // For Retrofit @Body POSTs the Content-Type lives on the body, not as a
+        // request header — fall back to it so POST signatures match what is sent.
+        val contentType = original.header("Content-Type")
+            ?: original.body?.contentType()?.toString()
+            ?: ""
         val bodyLen = if (bodyStr.isNotEmpty()) {
             bodyStr.toByteArray(Charsets.UTF_8).size.toString()
         } else {

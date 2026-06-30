@@ -15,6 +15,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun loginAsGuest(guestToken: String) {
         tokenStorage.saveToken(guestToken)
+        tokenStorage.setGuest(true)
     }
 
     override suspend fun loginWithCredentials(email: String, password: String): String {
@@ -25,6 +26,7 @@ class AuthRepositoryImpl @Inject constructor(
         val token = response.data?.token?.takeIf { it.isNotBlank() }
             ?: throw IllegalStateException(response.msg.ifBlank { "Invalid email or password." })
         tokenStorage.saveToken(token)
+        tokenStorage.setGuest(false)
         return token
     }
 
