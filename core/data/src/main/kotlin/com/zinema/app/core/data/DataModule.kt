@@ -7,9 +7,11 @@ import com.zinema.app.core.data.db.daos.PlaybackPositionDao
 import com.zinema.app.core.data.db.daos.RecentSearchDao
 import com.zinema.app.core.data.db.daos.TabCacheDao
 import com.zinema.app.core.data.db.daos.WatchlistDao
+import com.zinema.app.core.data.repositories.AuthRepositoryImpl
 import com.zinema.app.core.data.repositories.ContentRepositoryImpl
 import com.zinema.app.core.data.repositories.PlaybackRepositoryImpl
 import com.zinema.app.core.data.repositories.UserRepositoryImpl
+import com.zinema.app.core.domain.repository.AuthRepository
 import com.zinema.app.core.domain.repository.ContentRepository
 import com.zinema.app.core.domain.repository.PlaybackRepository
 import com.zinema.app.core.domain.repository.UserRepository
@@ -43,6 +45,10 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindUserRepository(impl: UserRepositoryImpl): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
 
     companion object {
 
