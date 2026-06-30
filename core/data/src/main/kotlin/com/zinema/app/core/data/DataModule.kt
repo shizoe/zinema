@@ -10,10 +10,12 @@ import com.zinema.app.core.data.db.daos.WatchlistDao
 import com.zinema.app.core.data.repositories.AuthRepositoryImpl
 import com.zinema.app.core.data.repositories.ContentRepositoryImpl
 import com.zinema.app.core.data.repositories.PlaybackRepositoryImpl
+import com.zinema.app.core.data.repositories.SearchHistoryRepositoryImpl
 import com.zinema.app.core.data.repositories.UserRepositoryImpl
 import com.zinema.app.core.domain.repository.AuthRepository
 import com.zinema.app.core.domain.repository.ContentRepository
 import com.zinema.app.core.domain.repository.PlaybackRepository
+import com.zinema.app.core.domain.repository.SearchHistoryRepository
 import com.zinema.app.core.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -49,6 +51,10 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSearchHistoryRepository(impl: SearchHistoryRepositoryImpl): SearchHistoryRepository
 
     companion object {
 
