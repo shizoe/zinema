@@ -3,6 +3,7 @@ package com.zinema.app.feature.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zinema.app.core.domain.analytics.Analytics
 import com.zinema.app.core.domain.model.ContentDetail
 import com.zinema.app.core.domain.model.Episode
 import com.zinema.app.core.domain.model.PlaybackPosition
@@ -33,6 +34,7 @@ class DetailViewModel @Inject constructor(
     private val getContentDetail: GetContentDetailUseCase,
     private val getEpisodes: GetEpisodesUseCase,
     private val toggleWatchlistUseCase: ToggleWatchlistUseCase,
+    private val analytics: Analytics,
     userRepository: UserRepository,
     private val playbackRepository: PlaybackRepository,
 ) : ViewModel() {
@@ -91,6 +93,12 @@ class DetailViewModel @Inject constructor(
     fun toggleWatchlist() {
         val content = (_uiState.value as? DetailUiState.Success)?.detail?.content ?: return
         viewModelScope.launch { toggleWatchlistUseCase(content) }
+    }
+
+    /** Logs play_initiated before the screen navigates to the player (blueprint T-058). */
+    fun onPlayInitiated() {
+        val content = (_uiState.value as? DetailUiState.Success)?.detail?.content ?: return
+        analytics.trackPlayInitiated(content.id, content.type.name)
     }
 
     fun retry() = load()

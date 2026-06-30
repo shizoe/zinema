@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.zinema.app.core.domain.model.Content
 import com.zinema.app.core.domain.model.ContentTab
+import com.zinema.app.core.ui.components.OfflineBanner
 import com.zinema.app.core.ui.theme.ZinemaColors
 
 /**
@@ -52,12 +53,14 @@ fun HomeScreen(
     onPlayClick: (Content) -> Unit,
     onSearchClick: () -> Unit,
     onProfileClick: () -> Unit,
+    onShortTvClick: () -> Unit,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = hiltViewModel(),
     tabContentViewModel: TabContentViewModel = hiltViewModel(),
 ) {
     val selectedTabId by homeViewModel.selectedTabId.collectAsStateWithLifecycle()
     val state by tabContentViewModel.uiState.collectAsStateWithLifecycle()
+    val isOnline by homeViewModel.isOnline.collectAsStateWithLifecycle()
     var moreOpen by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(selectedTabId) { tabContentViewModel.loadTab(selectedTabId) }
@@ -94,30 +97,39 @@ fun HomeScreen(
                 selectedTabId = selectedTabId,
                 moreOpen = moreOpen,
                 onSelect = { id ->
-                    moreOpen = false
-                    homeViewModel.selectTab(id)
+                    if (id == SHORTTV_TAB_ID) {
+                        onShortTvClick()
+                    } else {
+                        moreOpen = false
+                        homeViewModel.selectTab(id)
+                    }
                 },
                 onMore = { moreOpen = true },
             )
         },
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            if (moreOpen) {
-                CategoryGrid(
-                    tabs = homeViewModel.tabs,
-                    onTabClick = { id ->
-                        moreOpen = false
-                        homeViewModel.selectTab(id)
-                    },
-                )
-            } else {
-                HomeContent(
-                    state = state,
-                    onItemClick = onItemClick,
-                    onPlayClick = onPlayClick,
-                    onWatchlistClick = homeViewModel::onWatchlistToggle,
-                    onRetry = tabContentViewModel::retry,
-                )
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            if (!isOnline) {
+                OfflineBanner()
+            }
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (moreOpen) {
+                    CategoryGrid(
+                        tabs = homeViewModel.tabs,
+                        onTabClick = { id ->
+                            moreOpen = false
+                            homeViewModel.selectTab(id)
+                        },
+                    )
+                } else {
+                    HomeContent(
+                        state = state,
+                        onItemClick = onItemClick,
+                        onPlayClick = onPlayClick,
+                        onWatchlistClick = homeViewModel::onWatchlistToggle,
+                        onRetry = tabContentViewModel::retry,
+                    )
+                }
             }
         }
     }

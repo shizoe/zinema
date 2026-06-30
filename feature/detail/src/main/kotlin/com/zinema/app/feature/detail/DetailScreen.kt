@@ -168,6 +168,7 @@ private fun DetailContent(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Button(
                     onClick = {
+                        viewModel.onPlayInitiated()
                         val (season, episode) = playTarget(content, resume, selectedSeason, episodes)
                         onPlayClick(content.id, season, episode)
                     },

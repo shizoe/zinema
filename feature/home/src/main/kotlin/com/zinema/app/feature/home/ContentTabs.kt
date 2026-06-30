@@ -31,6 +31,9 @@ val SUPPRESSED_TAB_IDS: Set<Int> = setOf(27)
 /** The five tabs shown in the mobile bottom navigation bar (blueprint T-042). */
 val BOTTOM_NAV_TAB_IDS: List<Int> = listOf(0, 2, 5, 1, 13) // Home, Movies, TV, Trending, ShortTV
 
+/** ShortTV opens a standalone vertical feed instead of an in-page content tab. */
+const val SHORTTV_TAB_ID: Int = 13
+
 /** A simple glyph per tab (avoids the material-icons dependency — see Phase 3). */
 fun glyphForTab(tabId: Int): String = when (tabId) {
     0 -> "⌂"      // Home

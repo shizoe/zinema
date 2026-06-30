@@ -56,6 +56,14 @@ android {
     packaging {
         resources.excludes += setOf("/META-INF/{AL2.0,LGPL2.1}")
     }
+
+    lint {
+        // Workaround for an AGP/lint + Kotlin-analysis tooling bug:
+        // NonNullableMutableLiveDataDetector crashes (IncompatibleClassChangeError)
+        // during release lint analysis. We don't use LiveData. Run lint separately.
+        disable += "NullSafeMutableLiveData"
+        checkReleaseBuilds = false
+    }
 }
 
 dependencies {

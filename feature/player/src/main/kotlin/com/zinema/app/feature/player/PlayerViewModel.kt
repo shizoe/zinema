@@ -9,10 +9,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import com.zinema.app.core.domain.analytics.Analytics
+import com.zinema.app.core.domain.analytics.CrashReporter
 import com.zinema.app.core.domain.exception.StreamSecurityException
 import com.zinema.app.core.domain.model.ContentType
 import com.zinema.app.core.domain.model.StreamInfo
@@ -54,6 +58,8 @@ class PlayerViewModel @Inject constructor(
     private val savePosition: SavePlaybackPositionUseCase,
     private val subtitlePreferences: SubtitlePreferences,
     private val cookieJar: CloudFrontCookieJar,
+    private val analytics: Analytics,
+    private val crashReporter: CrashReporter,
     okHttpClient: OkHttpClient,
 ) : ViewModel() {
 
@@ -71,6 +77,7 @@ class PlayerViewModel @Inject constructor(
 
     private var currentQuality: String = "1080"
     private var expiryJob: Job? = null
+    private var playbackStartMs: Long = 0L
 
     val player: ExoPlayer = ExoPlayer.Builder(context)
         .setMediaSourceFactory(
@@ -79,6 +86,23 @@ class PlayerViewModel @Inject constructor(
         .build()
 
     init {
+        player.addListener(object : Player.Listener {
+            override fun onRenderedFirstFrame() {
+                analytics.trackPlaybackStarted(System.currentTimeMillis() - playbackStartMs)
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                when (playbackState) {
+                    Player.STATE_BUFFERING -> analytics.trackBufferEvent(buffering = true)
+                    Player.STATE_READY -> analytics.trackBufferEvent(buffering = false)
+                }
+            }
+
+            override fun onPlayerError(error: PlaybackException) {
+                crashReporter.recordException(error)
+                _uiState.value = PlayerUiState.Error(error.message ?: "Playback error.")
+            }
+        })
         loadStreamInfo(currentQuality)
         startPositionReporting()
     }
@@ -98,7 +122,7 @@ class PlayerViewModel @Inject constructor(
                 scheduleExpiryRefresh(streamInfo.expiresAt)
             } catch (e: StreamSecurityException) {
                 Log.e(TAG, "Stream blocked by CDN allowlist", e)
-                // TODO(Phase 10): Crashlytics.recordException(e)
+                crashReporter.recordException(e)
                 _uiState.value = PlayerUiState.Error("This title can't be played securely.")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to load stream", e)
@@ -135,6 +159,7 @@ class PlayerViewModel @Inject constructor(
             .apply { protocolMime(streamInfo.streamProtocol)?.let { setMimeType(it) } }
             .setSubtitleConfigurations(subtitleConfigs)
             .build()
+        playbackStartMs = System.currentTimeMillis()
         player.setMediaItem(mediaItem)
         player.prepare()
         player.playWhenReady = true

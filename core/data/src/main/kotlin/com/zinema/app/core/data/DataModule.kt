@@ -7,6 +7,7 @@ import com.zinema.app.core.data.db.daos.PlaybackPositionDao
 import com.zinema.app.core.data.db.daos.RecentSearchDao
 import com.zinema.app.core.data.db.daos.TabCacheDao
 import com.zinema.app.core.data.db.daos.WatchlistDao
+import com.zinema.app.core.data.connectivity.ConnectivityObserverImpl
 import com.zinema.app.core.data.repositories.AuthRepositoryImpl
 import com.zinema.app.core.data.repositories.ContentRepositoryImpl
 import com.zinema.app.core.data.repositories.PlaybackRepositoryImpl
@@ -17,6 +18,7 @@ import com.zinema.app.core.domain.repository.ContentRepository
 import com.zinema.app.core.domain.repository.PlaybackRepository
 import com.zinema.app.core.domain.repository.SearchHistoryRepository
 import com.zinema.app.core.domain.repository.UserRepository
+import com.zinema.app.core.domain.util.ConnectivityObserver
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -55,6 +57,10 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindSearchHistoryRepository(impl: SearchHistoryRepositoryImpl): SearchHistoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindConnectivityObserver(impl: ConnectivityObserverImpl): ConnectivityObserver
 
     companion object {
 

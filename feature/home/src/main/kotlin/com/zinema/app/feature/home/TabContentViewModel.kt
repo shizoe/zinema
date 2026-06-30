@@ -2,6 +2,7 @@ package com.zinema.app.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zinema.app.core.domain.analytics.Analytics
 import com.zinema.app.core.domain.model.Content
 import com.zinema.app.core.domain.model.ContentType
 import com.zinema.app.core.domain.usecase.GetTabContentUseCase
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TabContentViewModel @Inject constructor(
     private val getTabContent: GetTabContentUseCase,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TabContentUiState>(TabContentUiState.Loading)
@@ -31,6 +33,7 @@ class TabContentViewModel @Inject constructor(
     fun loadTab(tabId: Int) {
         if (tabId == currentTabId && _uiState.value is TabContentUiState.Success) return
         currentTabId = tabId
+        analytics.trackTabViewed(tabId, CONTENT_TABS.firstOrNull { it.tabId == tabId }?.displayName.orEmpty())
         viewModelScope.launch {
             _uiState.value = TabContentUiState.Loading
             getTabContent(tabId)
