@@ -15,9 +15,15 @@ android {
     defaultConfig {
         minSdk = 26
         consumerProguardFiles("consumer-rules.pro")
+
+        // ClientInfoInterceptor reads the app version from BuildConfig. Library
+        // BuildConfig has no VERSION_* by default, so we expose them here. Keep in
+        // sync with :app versionName/versionCode (see PHASE-1 doc §Deviations).
+        buildConfigField("String", "VERSION_NAME", "\"1.0.0\"")
+        buildConfigField("int", "VERSION_CODE", "1")
     }
 
-    // ClientInfoInterceptor reads BuildConfig (version + DEBUG flag).
+    // ClientInfoInterceptor / NetworkModule read BuildConfig (version + DEBUG flag).
     buildFeatures {
         buildConfig = true
     }
@@ -33,6 +39,9 @@ android {
 
 dependencies {
     implementation(project(":core:security"))
+    // SessionState (kids-profile flags) lives in core:domain so feature modules
+    // can mutate it too (see PHASE-1 doc §Deviations).
+    implementation(project(":core:domain"))
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -48,4 +57,6 @@ dependencies {
     implementation(libs.coil.video)
 
     implementation(libs.coroutines.android)
+
+    testImplementation(libs.junit)
 }
