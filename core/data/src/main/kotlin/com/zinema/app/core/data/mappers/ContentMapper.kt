@@ -1,6 +1,7 @@
 package com.zinema.app.core.data.mappers
 
 import com.zinema.app.core.domain.model.Content
+import com.zinema.app.core.domain.model.ContentDetail
 import com.zinema.app.core.domain.model.ContentType
 import com.zinema.app.core.domain.model.Episode
 import com.zinema.app.core.domain.model.StreamInfo
@@ -61,6 +62,17 @@ fun SubjectDetail.toDomain(): Content = Content(
     totalEpisodes = totalEpisode ?: 0,
     trailerUrl = trailerUrl,
     placeholderColor = DEFAULT_PLACEHOLDER_COLOR,
+)
+
+fun SubjectDetail.toContentDetail(): ContentDetail = ContentDetail(
+    content = toDomain(),
+    seasons = when {
+        !seasons.isNullOrEmpty() -> seasons!!.map { it.seasonIndex }
+        (totalSeason ?: 0) > 0 -> (1..totalSeason!!).toList()
+        else -> emptyList()
+    },
+    episodes = episodes?.map { it.toDomain() } ?: emptyList(),
+    related = relatedSubjects?.map { it.toDomain() }?.filter { it.id.isNotBlank() } ?: emptyList(),
 )
 
 fun EpisodeInfo.toDomain(): Episode = Episode(

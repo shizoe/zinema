@@ -5,9 +5,12 @@ import com.zinema.app.core.data.db.cache.toCacheModel
 import com.zinema.app.core.data.db.cache.toContent
 import com.zinema.app.core.data.db.daos.TabCacheDao
 import com.zinema.app.core.data.db.entities.CachedTabEntity
+import com.zinema.app.core.data.mappers.toContentDetail
 import com.zinema.app.core.data.mappers.toDomain
 import com.zinema.app.core.domain.exception.StreamSecurityException
 import com.zinema.app.core.domain.model.Content
+import com.zinema.app.core.domain.model.ContentDetail
+import com.zinema.app.core.domain.model.Episode
 import com.zinema.app.core.domain.model.StreamInfo
 import com.zinema.app.core.domain.repository.ContentRepository
 import com.zinema.app.core.network.ApiService
@@ -62,10 +65,15 @@ class ContentRepositoryImpl @Inject constructor(
         emit(contents)
     }.flowOn(Dispatchers.IO)
 
-    override fun getContentDetail(subjectId: String): Flow<Content> = flow {
+    override fun getContentDetail(subjectId: String): Flow<ContentDetail> = flow {
         val response = api.getSubjectDetail(subjectId = subjectId)
         val detail = response.data ?: error("No detail for subjectId=$subjectId")
-        emit(detail.toDomain())
+        emit(detail.toContentDetail())
+    }.flowOn(Dispatchers.IO)
+
+    override fun getEpisodes(subjectId: String, seasonIndex: Int): Flow<List<Episode>> = flow {
+        val response = api.getSubjectDetail(subjectId = subjectId, seasonIndex = seasonIndex)
+        emit(response.data?.episodes?.map { it.toDomain() } ?: emptyList())
     }.flowOn(Dispatchers.IO)
 
     override suspend fun getStreamInfo(
