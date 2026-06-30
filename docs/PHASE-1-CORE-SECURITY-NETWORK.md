@@ -1,8 +1,9 @@
 # Phase 1 — Core Security & Network (Implementation Guide)
 
-> **Status:** ✅ Complete (files generated). ⚠️ Not compiled here (no Android SDK;
-> see Phase 0 doc). The signing HMAC, however, **was** validated against an
-> independently-computed value using a local JDK — see [§4](#4-the-signing-test-t-011).
+> **Status:** ✅ Complete and **build-verified** (2026-06-30). `:core:security`,
+> `:core:network`, and `:core:domain` compile (KSP + Hilt + serialization), the
+> signing unit test passes (**3 tests, 0 failures**), and `:app:assembleDebug`
+> links the whole graph into an APK. See [§5](#5-verify).
 >
 > **Blueprint source:** `ANDROID_BLUEPRINT.md` §5, §8, and §11 → "Phase 1 — Core
 > Security & Network" (tasks **T-008 … T-019**).
@@ -158,9 +159,9 @@ Run it (once you have JDK 17 + SDK):
 ```
 
 ### Phase 1 "done" checklist
-- [ ] Both core modules assemble.
-- [ ] `:core:network` unit tests pass (signing HMAC green).
-- [ ] App still assembles — Hilt resolves `SessionState`, the interceptors,
+- [x] Both core modules assemble. _(verified 2026-06-30)_
+- [x] `:core:network` unit tests pass (signing HMAC green — 3/3).
+- [x] App still assembles — Hilt resolves `SessionState`, the interceptors,
       `TokenStorage`, `DeviceIdProvider`, `ApiService`, `ImageLoader`.
 - [ ] Manual spot-check: a real request carries `x-tr-signature`, `Authorization`,
       and `x-client-info`, and logs show those values **redacted**.
