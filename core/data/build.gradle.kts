@@ -47,4 +47,7 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coroutines.android)
+
+    // Profile persistence uses EncryptedSharedPreferences (PHASE: profile store).
+    implementation(libs.security.crypto)
 }

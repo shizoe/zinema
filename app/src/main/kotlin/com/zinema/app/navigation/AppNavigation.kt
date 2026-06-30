@@ -1,14 +1,17 @@
 package com.zinema.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.zinema.app.core.domain.model.UserProfile
 import com.zinema.app.feature.auth.LoginScreen
 import com.zinema.app.feature.auth.ProfileSelectorScreen
+import com.zinema.app.feature.auth.ProfileViewModel
 import com.zinema.app.feature.detail.DetailScreen
 import com.zinema.app.feature.home.HomeScreen
 import com.zinema.app.feature.player.PlayerScreen
@@ -81,18 +84,18 @@ fun AppNavigation() {
         }
 
         composable(Screen.ProfileSelector.route) {
+            val profileViewModel: ProfileViewModel = hiltViewModel()
+            val profiles by profileViewModel.profiles.collectAsStateWithLifecycle()
             ProfileSelectorScreen(
-                profiles = SAMPLE_PROFILES,
-                onProfileSelected = { navController.popBackStack() },
-                onAddProfile = {},
+                profiles = profiles,
+                onProfileSelected = {
+                    profileViewModel.selectProfile(it)
+                    navController.popBackStack()
+                },
+                onAddProfile = { profileViewModel.addProfile("New Profile", 0, false, null) },
                 onManageProfiles = {},
+                onVerifyPin = profileViewModel::verifyPin,
             )
         }
     }
 }
-
-/** Placeholder profiles until a real profile store exists (see PHASE-4 gaps). */
-internal val SAMPLE_PROFILES = listOf(
-    UserProfile(id = "1", displayName = "You", avatarIndex = 0, isKidsProfile = false, pin = null),
-    UserProfile(id = "2", displayName = "Kids", avatarIndex = 3, isKidsProfile = true, pin = null),
-)

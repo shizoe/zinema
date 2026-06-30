@@ -1,11 +1,21 @@
 package com.zinema.app.core.network
 
+import com.zinema.app.core.network.dto.AccountExistsData
 import com.zinema.app.core.network.dto.ApiResponse
 import com.zinema.app.core.network.dto.AppConfigData
+import com.zinema.app.core.network.dto.CheckEmailBody
+import com.zinema.app.core.network.dto.HotSearchData
+import com.zinema.app.core.network.dto.LoginRequestBody
 import com.zinema.app.core.network.dto.PlayInfoData
+import com.zinema.app.core.network.dto.SearchRequestBody
+import com.zinema.app.core.network.dto.SearchResultData
+import com.zinema.app.core.network.dto.SearchSuggestData
 import com.zinema.app.core.network.dto.SubjectDetail
 import com.zinema.app.core.network.dto.TabOperatingData
+import com.zinema.app.core.network.dto.UserInfoData
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 /**
@@ -36,4 +46,29 @@ interface ApiService {
 
     @GET("wefeed-mobile-bff/app/config")
     suspend fun getAppConfig(): ApiResponse<AppConfigData>
+
+    // --- Search (recovered from the decompiled client) ---
+
+    @POST("wefeed-mobile-bff/subject-api/search/v2")
+    suspend fun searchContent(@Body body: SearchRequestBody): ApiResponse<SearchResultData>
+
+    @GET("wefeed-mobile-bff/subject-api/search-suggest")
+    suspend fun getSearchSuggestions(
+        @Query("keyword") keyword: String,
+        @Query("perPage") perPage: Int = 10,
+        @Query("resultMode") resultMode: Int = 0,
+    ): ApiResponse<SearchSuggestData>
+
+    @GET("wefeed-mobile-bff/subject-api/search-rank/v2")
+    suspend fun getSearchRank(
+        @Query("everyoneSearch") everyoneSearch: Int = 1,
+    ): ApiResponse<HotSearchData>
+
+    // --- Login (recovered from the decompiled client) ---
+
+    @POST("wefeed-mobile-bff/user-api/login")
+    suspend fun login(@Body body: LoginRequestBody): ApiResponse<UserInfoData>
+
+    @POST("wefeed-mobile-bff/user-api/check-mail-account")
+    suspend fun checkEmailExists(@Body body: CheckEmailBody): ApiResponse<AccountExistsData>
 }

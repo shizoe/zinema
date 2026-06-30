@@ -57,6 +57,9 @@ fun ProfileSelectorScreen(
     onAddProfile: () -> Unit,
     onManageProfiles: () -> Unit,
     modifier: Modifier = Modifier,
+    onVerifyPin: (UserProfile, String) -> Boolean = { profile, entered ->
+        profile.pin == null || profile.pin == entered
+    },
 ) {
     var pinProfile by remember { mutableStateOf<UserProfile?>(null) }
 
@@ -100,7 +103,7 @@ fun ProfileSelectorScreen(
 
     pinProfile?.let { profile ->
         PinDialog(
-            expectedPin = profile.pin.orEmpty(),
+            verify = { entered -> onVerifyPin(profile, entered) },
             onDismiss = { pinProfile = null },
             onValid = {
                 pinProfile = null
@@ -172,7 +175,7 @@ private fun AddProfileTile(onClick: () -> Unit) {
 
 @Composable
 private fun PinDialog(
-    expectedPin: String,
+    verify: (String) -> Boolean,
     onDismiss: () -> Unit,
     onValid: () -> Unit,
 ) {
@@ -197,7 +200,7 @@ private fun PinDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                if (pin == expectedPin) onValid() else error = true
+                if (verify(pin)) onValid() else error = true
             }) {
                 Text(text = stringResource(R.string.auth_ok))
             }

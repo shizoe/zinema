@@ -1,6 +1,9 @@
 package com.zinema.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -8,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.zinema.app.feature.auth.LoginScreen
 import com.zinema.app.feature.auth.ProfileSelectorScreen
+import com.zinema.app.feature.auth.ProfileViewModel
 import com.zinema.app.feature.detail.DetailScreen
 import com.zinema.app.feature.home.TvHomeScreen
 import com.zinema.app.feature.player.TvPlayerScreen
@@ -69,11 +73,17 @@ fun TvNavigation() {
         }
 
         composable(Screen.ProfileSelector.route) {
+            val profileViewModel: ProfileViewModel = hiltViewModel()
+            val profiles by profileViewModel.profiles.collectAsStateWithLifecycle()
             ProfileSelectorScreen(
-                profiles = SAMPLE_PROFILES,
-                onProfileSelected = { navController.popBackStack() },
-                onAddProfile = {},
+                profiles = profiles,
+                onProfileSelected = {
+                    profileViewModel.selectProfile(it)
+                    navController.popBackStack()
+                },
+                onAddProfile = { profileViewModel.addProfile("New Profile", 0, false, null) },
                 onManageProfiles = {},
+                onVerifyPin = profileViewModel::verifyPin,
             )
         }
     }

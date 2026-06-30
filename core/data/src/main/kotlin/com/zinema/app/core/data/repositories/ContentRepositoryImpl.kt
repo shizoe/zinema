@@ -15,6 +15,7 @@ import com.zinema.app.core.domain.model.StreamInfo
 import com.zinema.app.core.domain.repository.ContentRepository
 import com.zinema.app.core.network.ApiService
 import com.zinema.app.core.network.cdn.CdnValidator
+import com.zinema.app.core.network.dto.SearchRequestBody
 import com.zinema.app.core.network.dto.SubjectItem
 import com.zinema.app.core.network.dto.TabOperatingData
 import kotlinx.coroutines.Dispatchers
@@ -93,9 +94,18 @@ class ContentRepositoryImpl @Inject constructor(
     }
 
     override fun searchContent(query: String): Flow<List<Content>> = flow {
-        // TODO: no search endpoint is defined in the blueprint (§8.1). Wire this to
-        // the real API path once known; emit empty for now to honor the contract.
-        emit(emptyList<Content>())
+        if (query.isBlank()) {
+            emit(emptyList<Content>())
+            return@flow
+        }
+        val response = api.searchContent(SearchRequestBody(keyword = query))
+        val results = response.data
+            ?.items
+            .orEmpty()
+            .distinctBy { it.subjectId }
+            .filter { it.subjectId.isNotBlank() }
+            .map { it.toDomain() }
+        emit(results)
     }.flowOn(Dispatchers.IO)
 
     private fun TabOperatingData.extractSubjects(): List<SubjectItem> =

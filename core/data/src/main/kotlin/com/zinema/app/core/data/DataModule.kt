@@ -11,11 +11,13 @@ import com.zinema.app.core.data.connectivity.ConnectivityObserverImpl
 import com.zinema.app.core.data.repositories.AuthRepositoryImpl
 import com.zinema.app.core.data.repositories.ContentRepositoryImpl
 import com.zinema.app.core.data.repositories.PlaybackRepositoryImpl
+import com.zinema.app.core.data.repositories.ProfileRepositoryImpl
 import com.zinema.app.core.data.repositories.SearchHistoryRepositoryImpl
 import com.zinema.app.core.data.repositories.UserRepositoryImpl
 import com.zinema.app.core.domain.repository.AuthRepository
 import com.zinema.app.core.domain.repository.ContentRepository
 import com.zinema.app.core.domain.repository.PlaybackRepository
+import com.zinema.app.core.domain.repository.ProfileRepository
 import com.zinema.app.core.domain.repository.SearchHistoryRepository
 import com.zinema.app.core.domain.repository.UserRepository
 import com.zinema.app.core.domain.util.ConnectivityObserver
@@ -61,6 +63,10 @@ abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindConnectivityObserver(impl: ConnectivityObserverImpl): ConnectivityObserver
+
+    @Binds
+    @Singleton
+    abstract fun bindProfileRepository(impl: ProfileRepositoryImpl): ProfileRepository
 
     companion object {
 
