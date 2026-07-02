@@ -5,9 +5,11 @@ import com.zinema.app.core.network.dto.ApiResponse
 import com.zinema.app.core.network.dto.AppConfigData
 import com.zinema.app.core.network.dto.BottomTabData
 import com.zinema.app.core.network.dto.CheckEmailBody
+import com.zinema.app.core.network.dto.ExtCaptionsData
 import com.zinema.app.core.network.dto.HotSearchData
 import com.zinema.app.core.network.dto.LoginRequestBody
 import com.zinema.app.core.network.dto.PlayInfoData
+import com.zinema.app.core.network.dto.ResourceData
 import com.zinema.app.core.network.dto.SearchRequestBody
 import com.zinema.app.core.network.dto.SearchResultData
 import com.zinema.app.core.network.dto.SearchSuggestData
@@ -39,12 +41,33 @@ interface ApiService {
         @Query("se") seasonIndex: Int = 0,
     ): ApiResponse<SubjectDetail>
 
+    // The server caps page size hard ("exceed limit" PARAMS_ERROR for large perPage
+    // or wide epFrom/epTo windows). `all=1` returns the whole season paginated by
+    // page/perPage, so we keep perPage small and page through in the repository.
+    @GET("wefeed-mobile-bff/subject-api/resource")
+    suspend fun getResource(
+        @Query("subjectId") subjectId: String,
+        @Query("se") seasonIndex: Int,
+        @Query("page") page: Int = 1,
+        @Query("perPage") perPage: Int = 20,
+        @Query("all") all: Int = 1,
+        @Query("pagerMode") pagerMode: Int = 0,
+        @Query("resolution") resolution: Int = 0,
+    ): ApiResponse<ResourceData>
+
     @GET("wefeed-mobile-bff/subject-api/play-info")
     suspend fun getPlayInfo(
         @Query("subjectId") subjectId: String,
         @Query("se") seasonIndex: Int = 0,
         @Query("ep") episodeIndex: Int = 0,
     ): ApiResponse<PlayInfoData>
+
+    @GET("wefeed-mobile-bff/subject-api/get-ext-captions")
+    suspend fun getExtCaptions(
+        @Query("subjectId") subjectId: String,
+        @Query("resourceId") resourceId: String,
+        @Query("episode") episode: Int = 0,
+    ): ApiResponse<ExtCaptionsData>
 
     @GET("wefeed-mobile-bff/app/config")
     suspend fun getAppConfig(): ApiResponse<AppConfigData>

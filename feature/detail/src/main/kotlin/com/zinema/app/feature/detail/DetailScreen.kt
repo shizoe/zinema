@@ -114,7 +114,10 @@ private fun DetailContent(
 
     val scroll = rememberScrollState()
     var descExpanded by remember { mutableStateOf(false) }
-    val isSeries = content.type == ContentType.TV || content.type == ContentType.ANIME
+    // Only surface the season/episode section when it has content — avoids an empty
+    // block for single-video "series" (e.g. cartoon compilations) that carry no episodes.
+    val isSeries = (content.type == ContentType.TV || content.type == ContentType.ANIME) &&
+        (episodes.isNotEmpty() || detail.seasons.size > 1)
 
     Column(
         modifier = Modifier

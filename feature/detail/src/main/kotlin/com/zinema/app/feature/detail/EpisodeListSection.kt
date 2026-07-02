@@ -129,7 +129,11 @@ private fun EpisodeRow(episode: Episode, progress: Float, onClick: () -> Unit) {
         }
         Column(modifier = Modifier.padding(vertical = 4.dp)) {
             Text(
-                text = "${episode.episodeIndex}. ${episode.title}".ifBlank { "Episode ${episode.episodeIndex}" },
+                text = if (episode.title.isBlank()) {
+                    "Episode ${episode.episodeIndex}"
+                } else {
+                    "${episode.episodeIndex}. ${episode.title}"
+                },
                 color = ZinemaColors.OnBackground,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,

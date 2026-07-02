@@ -8,6 +8,7 @@ data class StreamInfo(
     val streamUrl: String,
     val quality: String,
     val availableQualities: List<String>,
+    val resourceId: String,
     val streamProtocol: StreamProtocol,
     val cloudFrontPolicy: String,
     val cloudFrontSignature: String,

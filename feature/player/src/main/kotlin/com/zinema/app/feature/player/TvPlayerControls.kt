@@ -28,6 +28,7 @@ fun TvPlayerControls(
     isPlaying: Boolean,
     positionMs: Long,
     durationMs: Long,
+    currentQuality: String,
     onPlayPause: () -> Unit,
     onSeekBack: () -> Unit,
     onSeekForward: () -> Unit,
@@ -63,7 +64,10 @@ fun TvPlayerControls(
                 TvControlButton(label = if (isPlaying) "Pause" else "Play", onClick = onPlayPause)
                 TvControlButton(label = "10s »", onClick = onSeekForward)
                 TvControlButton(label = "CC", onClick = onToggleSubtitles)
-                TvControlButton(label = "Quality", onClick = onToggleQuality)
+                TvControlButton(
+                    label = if (currentQuality.isBlank()) "Quality" else "Quality ${currentQuality}p",
+                    onClick = onToggleQuality,
+                )
             }
         }
     }

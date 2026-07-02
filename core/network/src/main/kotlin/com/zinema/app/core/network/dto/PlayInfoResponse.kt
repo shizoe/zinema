@@ -16,10 +16,12 @@ data class PlayInfoData(
 
 @Serializable
 data class StreamDto(
+    val id: String = "",                 // resource id — used to fetch external subtitles
     val resolutions: String = "",        // "1080", "720", "480", "360"
     val url: String = "",
+    val format: String = "",             // "MP4" | "DASH" | "HLS"
     val signCookie: String = "",         // CloudFront-Policy=...;CloudFront-Signature=...;CloudFront-Key-Pair-Id=...;
-    val streamType: String = "dash",     // "dash" | "hls" | "mp4"
+    val streamType: String = "dash",     // legacy alias; real API uses `format`
     val bandwidth: Long? = null,
 )
 
@@ -29,4 +31,25 @@ data class SubtitleDto(
     val languageCode: String = "",
     val url: String = "",
     val format: String = "vtt",          // "vtt" | "srt" | "ttml"
+)
+
+/**
+ * Response for `wefeed-mobile-bff/subject-api/get-ext-captions` — external subtitle
+ * tracks are NOT part of play-info; they are fetched separately, keyed by the
+ * subject + the playing stream's resource id + episode.
+ */
+@Serializable
+data class ExtCaptionsData(
+    val extCaptions: List<ExtCaption> = emptyList(),
+    val subjectId: String = "",
+)
+
+@Serializable
+data class ExtCaption(
+    val id: String = "",
+    val lan: String = "",                // language code, e.g. "en"
+    val lanName: String = "",            // display name, e.g. "English"
+    val url: String = "",                // .vtt / .srt file on the caption CDN
+    val size: String = "",
+    val delay: Int = 0,                  // sync offset in ms
 )

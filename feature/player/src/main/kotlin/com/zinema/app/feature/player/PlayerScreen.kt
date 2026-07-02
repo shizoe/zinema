@@ -123,6 +123,7 @@ fun PlayerScreen(
                         isPlaying = isPlaying,
                         positionMs = positionMs,
                         durationMs = durationMs,
+                        currentQuality = state.streamInfo.quality,
                         onPlayPause = { if (player.isPlaying) player.pause() else player.play() },
                         onSeekTo = { player.seekTo(it) },
                         onToggleSubtitles = { showSubtitles = true },

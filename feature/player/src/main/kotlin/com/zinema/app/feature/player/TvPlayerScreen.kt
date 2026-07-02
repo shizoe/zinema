@@ -81,6 +81,7 @@ fun TvPlayerScreen(
                     isPlaying = isPlaying,
                     positionMs = positionMs,
                     durationMs = durationMs,
+                    currentQuality = state.streamInfo.quality,
                     onPlayPause = { if (player.isPlaying) player.pause() else player.play() },
                     onSeekBack = { player.seekTo((player.currentPosition - 10_000).coerceAtLeast(0)) },
                     onSeekForward = { player.seekTo(player.currentPosition + 10_000) },

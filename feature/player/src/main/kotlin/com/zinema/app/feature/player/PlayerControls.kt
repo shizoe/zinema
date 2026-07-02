@@ -29,6 +29,7 @@ fun PlayerControls(
     isPlaying: Boolean,
     positionMs: Long,
     durationMs: Long,
+    currentQuality: String,
     onPlayPause: () -> Unit,
     onSeekTo: (Long) -> Unit,
     onToggleSubtitles: () -> Unit,
@@ -87,7 +88,10 @@ fun PlayerControls(
                     Text(text = "CC", color = ZinemaColors.OnBackground)
                 }
                 TextButton(onClick = onToggleQuality) {
-                    Text(text = "HD", color = ZinemaColors.OnBackground)
+                    Text(
+                        text = if (currentQuality.isBlank()) "HD" else "${currentQuality}p",
+                        color = ZinemaColors.OnBackground,
+                    )
                 }
             }
         }
