@@ -3,6 +3,7 @@ package com.zinema.app.core.network
 import com.zinema.app.core.network.dto.AccountExistsData
 import com.zinema.app.core.network.dto.ApiResponse
 import com.zinema.app.core.network.dto.AppConfigData
+import com.zinema.app.core.network.dto.BottomTabData
 import com.zinema.app.core.network.dto.CheckEmailBody
 import com.zinema.app.core.network.dto.HotSearchData
 import com.zinema.app.core.network.dto.LoginRequestBody
@@ -47,6 +48,9 @@ interface ApiService {
 
     @GET("wefeed-mobile-bff/app/config")
     suspend fun getAppConfig(): ApiResponse<AppConfigData>
+
+    @GET("wefeed-mobile-bff/subject-api/bottom-tab")
+    suspend fun getBottomTabs(): ApiResponse<BottomTabData>
 
     // --- Search (recovered from the decompiled client) ---
 

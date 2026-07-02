@@ -42,6 +42,7 @@ fun TvHomeScreen(
 ) {
     val selectedTabId by homeViewModel.selectedTabId.collectAsStateWithLifecycle()
     val state by tabContentViewModel.uiState.collectAsStateWithLifecycle()
+    val tabs by homeViewModel.tabs.collectAsStateWithLifecycle()
 
     LaunchedEffect(selectedTabId) { tabContentViewModel.loadTab(selectedTabId) }
 
@@ -51,7 +52,7 @@ fun TvHomeScreen(
             .background(ZinemaColors.Background),
     ) {
         TvNavDrawer(
-            tabs = homeViewModel.tabs,
+            tabs = tabs,
             selectedTabId = selectedTabId,
             onSelect = homeViewModel::selectTab,
             modifier = Modifier

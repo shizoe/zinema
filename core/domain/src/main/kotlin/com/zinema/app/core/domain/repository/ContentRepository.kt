@@ -2,12 +2,16 @@ package com.zinema.app.core.domain.repository
 
 import com.zinema.app.core.domain.model.Content
 import com.zinema.app.core.domain.model.ContentDetail
+import com.zinema.app.core.domain.model.ContentTab
 import com.zinema.app.core.domain.model.Episode
 import com.zinema.app.core.domain.model.StreamInfo
 import kotlinx.coroutines.flow.Flow
 
 /** Content browsing, detail, search, and stream resolution (blueprint T-021/T-026). */
 interface ContentRepository {
+
+    /** Server-driven content categories (subject-api/bottom-tab). */
+    fun getContentTabs(): Flow<List<ContentTab>>
 
     /** Tab feed. Emits cached content first when fresh (< 2h), otherwise fetches. */
     fun getTabContent(tabId: Int, page: Int): Flow<List<Content>>

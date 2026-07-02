@@ -61,6 +61,7 @@ fun HomeScreen(
     val selectedTabId by homeViewModel.selectedTabId.collectAsStateWithLifecycle()
     val state by tabContentViewModel.uiState.collectAsStateWithLifecycle()
     val isOnline by homeViewModel.isOnline.collectAsStateWithLifecycle()
+    val tabs by homeViewModel.tabs.collectAsStateWithLifecycle()
     var moreOpen by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(selectedTabId) { tabContentViewModel.loadTab(selectedTabId) }
@@ -115,7 +116,7 @@ fun HomeScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 if (moreOpen) {
                     CategoryGrid(
-                        tabs = homeViewModel.tabs,
+                        tabs = tabs,
                         onTabClick = { id ->
                             moreOpen = false
                             homeViewModel.selectTab(id)

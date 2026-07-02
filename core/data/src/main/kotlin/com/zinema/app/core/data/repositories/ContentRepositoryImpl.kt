@@ -6,10 +6,12 @@ import com.zinema.app.core.data.db.cache.toContent
 import com.zinema.app.core.data.db.daos.TabCacheDao
 import com.zinema.app.core.data.db.entities.CachedTabEntity
 import com.zinema.app.core.data.mappers.toContentDetail
+import com.zinema.app.core.data.mappers.toContentTabs
 import com.zinema.app.core.data.mappers.toDomain
 import com.zinema.app.core.domain.exception.StreamSecurityException
 import com.zinema.app.core.domain.model.Content
 import com.zinema.app.core.domain.model.ContentDetail
+import com.zinema.app.core.domain.model.ContentTab
 import com.zinema.app.core.domain.model.Episode
 import com.zinema.app.core.domain.model.StreamInfo
 import com.zinema.app.core.domain.repository.ContentRepository
@@ -35,6 +37,11 @@ class ContentRepositoryImpl @Inject constructor(
 
     private val json = Json { ignoreUnknownKeys = true }
     private val cacheSerializer = ListSerializer(ContentCacheModel.serializer())
+
+    override fun getContentTabs(): Flow<List<ContentTab>> = flow {
+        val response = api.getBottomTabs()
+        emit(response.data?.toContentTabs().orEmpty())
+    }.flowOn(Dispatchers.IO)
 
     override fun getTabContent(tabId: Int, page: Int): Flow<List<Content>> = flow {
         val cached = tabCacheDao.getByTabId(tabId)
