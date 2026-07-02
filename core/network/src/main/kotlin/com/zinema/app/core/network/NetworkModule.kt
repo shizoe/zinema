@@ -83,10 +83,12 @@ object NetworkModule {
             ignoreUnknownKeys = true
             coerceInputValues = true
         }
+        // charset=utf-8 matches the real client's Content-Type exactly, so the POST
+        // body signature (which covers Content-Type) lines up (verified in capture).
         return Retrofit.Builder()
             .baseUrl("https://api6.aoneroom.com/")
             .client(client)
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json; charset=utf-8".toMediaType()))
             .build()
     }
 

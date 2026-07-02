@@ -40,4 +40,27 @@ class SigningInterceptorTest {
         // Well-known MD5 of the ASCII string "hello".
         assertEquals("5d41402abc4b2a76b9719d911017c592", SigningInterceptor.md5Hex("hello"))
     }
+
+    /**
+     * Regression against a REAL captured, server-accepted request (POST search/v2):
+     * proves our key + algorithm + field order + body-MD5 produce the exact signature
+     * the server validated. Accept is empty, Content-Type carries charset=utf-8.
+     */
+    @Test
+    fun signature_matchesCapturedServerAcceptedRequest() {
+        val body = """{"page":1,"perPage":10,"keyword":"avatar"}""" // 42 bytes, as sent
+        val stringToSign = listOf(
+            "POST",
+            "",                                     // Accept (none sent)
+            "application/json; charset=utf-8",      // Content-Type
+            body.toByteArray(Charsets.UTF_8).size.toString(), // 42
+            "1782943006107",                        // ts (from captured signature)
+            SigningInterceptor.md5Hex(body),
+            "/wefeed-mobile-bff/subject-api/search/v2",
+        ).joinToString("\n")
+
+        val hmac = SigningInterceptor.hmacMd5Base64(SigningInterceptor.KEY_BYTES, stringToSign)
+
+        assertEquals("LLrtZqVBXJ3GRFYpyrXcMA==", hmac)
+    }
 }

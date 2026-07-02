@@ -40,7 +40,8 @@ class ClientInfoInterceptor @Inject constructor(
             .header("x-content-mode", if (sessionState.isKidsProfile) "1" else "0")
             .header("x-client-status", "0")
             .header("User-Agent", buildUserAgent())
-            .header("Accept", "*/*")
+            // Deliberately NO Accept header: the real client sends none, and the
+            // request signature covers the (empty) Accept value (verified in capture).
             .build()
         return chain.proceed(request)
     }

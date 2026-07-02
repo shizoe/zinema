@@ -39,7 +39,9 @@ class SigningInterceptor @Inject constructor(
 
         val ts = System.currentTimeMillis() + tokenStorage.getServerTimeOffsetMs()
         val sortedPathQuery = buildSortedPathQuery(original.url)
-        val accept = original.header("Accept") ?: "*/*"
+        // Verified against captured traffic: the real client signs the actual Accept
+        // header, which is empty (it sends none) — NOT "*/*".
+        val accept = original.header("Accept") ?: ""
         // For Retrofit @Body POSTs the Content-Type lives on the body, not as a
         // request header — fall back to it so POST signatures match what is sent.
         val contentType = original.header("Content-Type")
