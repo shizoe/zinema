@@ -3,6 +3,7 @@ package com.zinema.app.core.network.interceptors
 import com.zinema.app.core.security.TokenStorage
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.net.URLDecoder
@@ -30,6 +31,30 @@ class SigningInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
 
+        val response = chain.proceed(signRequest(original))
+
+        // Clock skew: the server rejects the signature with 407 (OQ-01). It reports
+        // its own clock on every response, so correct the offset and retry once —
+        // no extra round-trip to /app/config needed.
+        if (response.code == HTTP_SIGN_REJECTED) {
+            val serverMs = serverTimeMillis(response)
+            if (serverMs != null) {
+                tokenStorage.saveServerTimeOffsetMs(serverMs - System.currentTimeMillis())
+                response.close()
+                return chain.proceed(signRequest(original))
+            }
+        }
+        return response
+    }
+
+    /** Reads the server clock from response headers (epoch ms), or null. */
+    private fun serverTimeMillis(response: Response): Long? {
+        response.header("req-arrive-time")?.trim()?.toLongOrNull()?.let { return it }
+        return response.headers.getDate("date")?.time
+    }
+
+    /** Builds a copy of [original] carrying a fresh `x-tr-signature`. */
+    private fun signRequest(original: Request): Request {
         // Read the body without consuming it (it can only be read once).
         val bodyStr = original.body?.let { body ->
             val buffer = okio.Buffer()
@@ -75,12 +100,10 @@ class SigningInterceptor @Inject constructor(
             original.body
         }
 
-        val signed = original.newBuilder()
+        return original.newBuilder()
             .method(original.method, newBody)
             .header("x-tr-signature", signature)
             .build()
-
-        return chain.proceed(signed)
     }
 
     private fun buildSortedPathQuery(url: HttpUrl): String {
@@ -100,6 +123,7 @@ class SigningInterceptor @Inject constructor(
         private const val KEY_B64 = "76iRl07s0xSN9jqmEWAt79EBJZulIQIsV64FZr2O"
         private const val KEY_VERSION = 2
         private const val MAX_BODY_HASH_CHARS = 102400
+        private const val HTTP_SIGN_REJECTED = 407
 
         internal val KEY_BYTES: ByteArray = Base64.getDecoder().decode(KEY_B64)
 
