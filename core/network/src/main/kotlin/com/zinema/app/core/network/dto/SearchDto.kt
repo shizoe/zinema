@@ -3,10 +3,9 @@ package com.zinema.app.core.network.dto
 import kotlinx.serialization.Serializable
 
 /**
- * Search request/response models (recovered from the decompiled client).
- *
- * ⚠️ Response field names are reconstructed; `ignoreUnknownKeys` tolerates extras,
- * but confirm `data.items` is the result list against a captured response.
+ * Search request/response models. Response shape confirmed against captured
+ * traffic (POST subject-api/search/v2): results are grouped into topics, and the
+ * actual content hits live under `data.results[].subjects[]`.
  */
 @Serializable
 data class SearchRequestBody(
@@ -17,9 +16,32 @@ data class SearchRequestBody(
 
 @Serializable
 data class SearchResultData(
-    val items: List<SubjectItem> = emptyList(),
-    val total: Int = 0,
+    val results: List<SearchTopic> = emptyList(),
+    val pager: SearchPager? = null,
+    val tabId: String = "",
+    val tabs: List<SearchTab> = emptyList(),
+)
+
+@Serializable
+data class SearchTopic(
+    val topicType: String = "",   // e.g. "SUBJECT", "VERTICAL_RANK"
+    val title: String = "",
+    val subjects: List<SubjectItem> = emptyList(),
+)
+
+@Serializable
+data class SearchPager(
     val hasMore: Boolean = false,
+    val page: String = "",
+    val nextPage: String = "",
+    val perPage: Int = 0,
+    val totalCount: Int = 0,
+)
+
+@Serializable
+data class SearchTab(
+    val tabId: String = "",
+    val name: String = "",
 )
 
 @Serializable

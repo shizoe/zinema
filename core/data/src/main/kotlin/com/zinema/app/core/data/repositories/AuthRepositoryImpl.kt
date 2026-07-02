@@ -24,7 +24,7 @@ class AuthRepositoryImpl @Inject constructor(
             LoginRequestBody(mail = email, password = password, type = 1, authType = 1),
         )
         val token = response.data?.token?.takeIf { it.isNotBlank() }
-            ?: throw IllegalStateException(response.msg.ifBlank { "Invalid email or password." })
+            ?: throw IllegalStateException(response.statusText.ifBlank { "Invalid email or password." })
         tokenStorage.saveToken(token)
         tokenStorage.setGuest(false)
         return token

@@ -31,3 +31,6 @@ Thumbs.db
 
 # --- Logs ---
 *.log
+
+# --- Captured API traffic (mitmproxy dumps; contains tokens + PII) ---
+captured/

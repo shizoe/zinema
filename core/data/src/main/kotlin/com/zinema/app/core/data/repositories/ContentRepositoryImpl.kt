@@ -99,9 +99,11 @@ class ContentRepositoryImpl @Inject constructor(
             return@flow
         }
         val response = api.searchContent(SearchRequestBody(keyword = query))
+        // Search hits are grouped into topics; flatten every topic's subjects.
         val results = response.data
-            ?.items
+            ?.results
             .orEmpty()
+            .flatMap { it.subjects }
             .distinctBy { it.subjectId }
             .filter { it.subjectId.isNotBlank() }
             .map { it.toDomain() }
