@@ -35,14 +35,29 @@ class TokenStorage(context: Context) {
     /** Emits whenever a 401 is observed; collected by AuthViewModel (blueprint §8.3). */
     val tokenExpiredEvents: SharedFlow<Unit> = _tokenExpiredEvents.asSharedFlow()
 
+    private val _tokenChangedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    /** Emits whenever the token (or guest flag) changes — drives SessionManager. */
+    val tokenChangedEvents: SharedFlow<Unit> = _tokenChangedEvents.asSharedFlow()
+
     fun getToken(): String = prefs.getString(KEY_TOKEN, "").orEmpty()
 
     fun saveToken(jwt: String) {
         prefs.edit().putString(KEY_TOKEN, jwt).apply()
+        _tokenChangedEvents.tryEmit(Unit)
     }
 
     fun clearToken() {
         prefs.edit().remove(KEY_TOKEN).apply()
+        _tokenChangedEvents.tryEmit(Unit)
+    }
+
+    /** Whether the current token is the baked-in guest token (vs. a real login). */
+    fun isGuest(): Boolean = prefs.getBoolean(KEY_IS_GUEST, false)
+
+    fun setGuest(isGuest: Boolean) {
+        prefs.edit().putBoolean(KEY_IS_GUEST, isGuest).apply()
+        _tokenChangedEvents.tryEmit(Unit)
     }
 
     /** Signals listeners that the current token was rejected. Non-blocking. */
@@ -60,5 +75,6 @@ class TokenStorage(context: Context) {
         const val PREFS_FILE = "zinema_token_prefs"
         const val KEY_TOKEN = "jwt_token"
         const val KEY_SERVER_OFFSET = "server_time_offset_ms"
+        const val KEY_IS_GUEST = "is_guest_token"
     }
 }

@@ -1,0 +1,39 @@
+package com.zinema.app.core.domain.repository
+
+import com.zinema.app.core.domain.model.Content
+import com.zinema.app.core.domain.model.ContentDetail
+import com.zinema.app.core.domain.model.ContentTab
+import com.zinema.app.core.domain.model.Episode
+import com.zinema.app.core.domain.model.StreamInfo
+import kotlinx.coroutines.flow.Flow
+
+/** Content browsing, detail, search, and stream resolution (blueprint T-021/T-026). */
+interface ContentRepository {
+
+    /** Server-driven content categories (subject-api/bottom-tab). */
+    fun getContentTabs(): Flow<List<ContentTab>>
+
+    /** Tab feed. Emits cached content first when fresh (< 2h), otherwise fetches. */
+    fun getTabContent(tabId: Int, page: Int): Flow<List<Content>>
+
+    /** Full detail for one subject (content + seasons + episodes + related). */
+    fun getContentDetail(subjectId: String): Flow<ContentDetail>
+
+    /** Episodes for a specific season (used when switching seasons on the detail screen). */
+    fun getEpisodes(subjectId: String, seasonIndex: Int): Flow<List<Episode>>
+
+    /**
+     * Resolves a playable stream. Always fresh (never cached). Throws
+     * [com.zinema.app.core.domain.exception.StreamSecurityException] if the URL is
+     * not an allowlisted stream host.
+     */
+    suspend fun getStreamInfo(
+        subjectId: String,
+        seasonIndex: Int,
+        episodeIndex: Int,
+        quality: String = "1080",
+    ): StreamInfo
+
+    /** Search by free-text query. */
+    fun searchContent(query: String): Flow<List<Content>>
+}

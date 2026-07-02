@@ -14,10 +14,16 @@ android {
     defaultConfig {
         minSdk = 26
         consumerProguardFiles("consumer-rules.pro")
+
+        // Guest-mode JWT for AuthViewModel.loginAsGuest() (blueprint T-037).
+        // Sourced from the Gradle property ZINEMA_GUEST_JWT; empty by default.
+        val guestJwt = (project.findProperty("ZINEMA_GUEST_JWT") as String?) ?: ""
+        buildConfigField("String", "GUEST_JWT", "\"$guestJwt\"")
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {

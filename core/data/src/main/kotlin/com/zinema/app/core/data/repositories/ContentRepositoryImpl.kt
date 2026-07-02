@@ -1,0 +1,210 @@
+package com.zinema.app.core.data.repositories
+
+import com.zinema.app.core.data.db.cache.ContentCacheModel
+import com.zinema.app.core.data.db.cache.toCacheModel
+import com.zinema.app.core.data.db.cache.toContent
+import com.zinema.app.core.data.db.daos.TabCacheDao
+import com.zinema.app.core.data.db.entities.CachedTabEntity
+import com.zinema.app.core.data.mappers.toContentDetail
+import com.zinema.app.core.data.mappers.toContentTabs
+import com.zinema.app.core.data.mappers.toDomain
+import com.zinema.app.core.data.mappers.toEpisodes
+import com.zinema.app.core.domain.exception.StreamSecurityException
+import com.zinema.app.core.domain.model.Content
+import com.zinema.app.core.domain.model.ContentDetail
+import com.zinema.app.core.domain.model.ContentTab
+import com.zinema.app.core.domain.model.Episode
+import com.zinema.app.core.domain.model.StreamInfo
+import com.zinema.app.core.domain.model.SubtitleTrack
+import com.zinema.app.core.domain.repository.ContentRepository
+import com.zinema.app.core.network.ApiService
+import com.zinema.app.core.network.cdn.CdnValidator
+import com.zinema.app.core.network.dto.ResourceItem
+import com.zinema.app.core.network.dto.SearchRequestBody
+import com.zinema.app.core.network.dto.SubjectItem
+import com.zinema.app.core.network.dto.TabOperatingData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
+import javax.inject.Inject
+
+/** Content browsing/detail/search/stream resolution (blueprint T-026). */
+class ContentRepositoryImpl @Inject constructor(
+    private val api: ApiService,
+    private val tabCacheDao: TabCacheDao,
+) : ContentRepository {
+
+    private val json = Json { ignoreUnknownKeys = true }
+    private val cacheSerializer = ListSerializer(ContentCacheModel.serializer())
+
+    /** In-memory cache of all resource rows per subject (all=1 returns the full show). */
+    private val episodeCache = java.util.concurrent.ConcurrentHashMap<String, List<ResourceItem>>()
+
+    override fun getContentTabs(): Flow<List<ContentTab>> = flow {
+        val response = api.getBottomTabs()
+        emit(response.data?.toContentTabs().orEmpty())
+    }.flowOn(Dispatchers.IO)
+
+    override fun getTabContent(tabId: Int, page: Int): Flow<List<Content>> = flow {
+        val cached = tabCacheDao.getByTabId(tabId)
+        val now = System.currentTimeMillis()
+
+        // Cache hit within TTL: emit cached, then stop (blueprint T-026).
+        if (cached != null && now - cached.fetchedAtMs < CACHE_TTL_MS) {
+            emit(decodeCache(cached.contentJson))
+            return@flow
+        }
+
+        val response = api.getTabContent(tabId = tabId, version = cached?.version ?: "", page = page)
+        val data = response.data
+        val contents = data
+            ?.extractSubjects()
+            .orEmpty()
+            .filter { it.subjectId.isNotBlank() }
+            .dedupePreferringCover()
+            .map { it.toDomain() }
+
+        tabCacheDao.upsert(
+            CachedTabEntity(
+                tabId = tabId,
+                contentJson = encodeCache(contents),
+                fetchedAtMs = now,
+                version = data?.version ?: "",
+            ),
+        )
+        emit(contents)
+    }.flowOn(Dispatchers.IO)
+
+    override fun getContentDetail(subjectId: String): Flow<ContentDetail> = flow {
+        val response = api.getSubjectDetail(subjectId = subjectId)
+        val detail = response.data ?: error("No detail for subjectId=$subjectId")
+        val contentDetail = detail.toContentDetail()
+        // For series, eagerly load the first season's episodes (subject-api/get has
+        // none) so the selector is populated on first paint. Best-effort.
+        val episodes = contentDetail.seasons.firstOrNull()
+            ?.let { fetchEpisodes(subjectId, it) }
+            .orEmpty()
+        emit(contentDetail.copy(episodes = episodes))
+    }.flowOn(Dispatchers.IO)
+
+    override fun getEpisodes(subjectId: String, seasonIndex: Int): Flow<List<Episode>> = flow {
+        emit(fetchEpisodes(subjectId, seasonIndex))
+    }.flowOn(Dispatchers.IO)
+
+    private suspend fun fetchEpisodes(subjectId: String, seasonIndex: Int): List<Episode> =
+        runCatching {
+            // all=1 returns every season's episodes at once; fetch+cache the whole set,
+            // then filter to the requested season so switching seasons is instant.
+            fetchAllResourceItems(subjectId).filter { it.se == seasonIndex }.toEpisodes()
+        }.getOrDefault(emptyList())
+
+    /** All resource rows for a subject (every season, every resolution), cached per subject. */
+    private suspend fun fetchAllResourceItems(subjectId: String): List<ResourceItem> {
+        episodeCache[subjectId]?.let { return it }
+        // The server caps page size hard, so page through until it reports no more.
+        val items = mutableListOf<ResourceItem>()
+        var page = 1
+        while (page <= MAX_EPISODE_PAGES) {
+            val data = api.getResource(subjectId = subjectId, seasonIndex = 1, page = page).data
+            val pageItems = data?.list.orEmpty()
+            items += pageItems
+            if (pageItems.isEmpty() || data?.pager?.hasMore != true) break
+            page++
+        }
+        return items.also { episodeCache[subjectId] = it }
+    }
+
+    override suspend fun getStreamInfo(
+        subjectId: String,
+        seasonIndex: Int,
+        episodeIndex: Int,
+        quality: String,
+    ): StreamInfo = withContext(Dispatchers.IO) {
+        val response = api.getPlayInfo(subjectId, seasonIndex, episodeIndex)
+        val data = response.data ?: error("No play-info for subjectId=$subjectId")
+        val streamInfo = data.toDomain(preferredQuality = quality)
+        // Never play from an unverified host (blueprint T-026).
+        if (!CdnValidator.isStreamHost(streamInfo.streamUrl)) {
+            throw StreamSecurityException("Stream host not allowlisted: ${streamInfo.streamUrl}")
+        }
+        // External subtitles (CC) are served by a separate endpoint keyed by the
+        // playing stream's resource id; best-effort, never fail playback over them.
+        val subtitles = fetchExternalCaptions(subjectId, streamInfo.resourceId, episodeIndex)
+        streamInfo.copy(subtitles = subtitles)
+    }
+
+    private suspend fun fetchExternalCaptions(
+        subjectId: String,
+        resourceId: String,
+        episodeIndex: Int,
+    ): List<SubtitleTrack> {
+        if (resourceId.isBlank()) return emptyList()
+        return runCatching {
+            api.getExtCaptions(subjectId, resourceId, episodeIndex)
+                .data?.extCaptions.orEmpty()
+                .filter { it.url.isNotBlank() && CdnValidator.isAllowed(it.url) }
+                .map { it.toDomain() }
+        }.getOrDefault(emptyList())
+    }
+
+    override fun searchContent(query: String): Flow<List<Content>> = flow {
+        if (query.isBlank()) {
+            emit(emptyList<Content>())
+            return@flow
+        }
+        val response = api.searchContent(SearchRequestBody(keyword = query))
+        // Search hits are grouped into topics; flatten every topic's subjects.
+        val results = response.data
+            ?.results
+            .orEmpty()
+            .flatMap { it.subjects }
+            .distinctBy { it.subjectId }
+            .filter { it.subjectId.isNotBlank() }
+            .map { it.toDomain() }
+        emit(results)
+    }.flowOn(Dispatchers.IO)
+
+    private fun TabOperatingData.extractSubjects(): List<SubjectItem> =
+        items.flatMap { block ->
+            // Banner + custom entries wrap the real subject in a `subject` field; the
+            // shell has no cover/title/subjectType, so always unwrap it.
+            block.banner?.banners.orEmpty().mapNotNull { it.subject } +
+                block.customData?.items.orEmpty().mapNotNull { it.subject } +
+                block.subjects
+        }
+
+    /**
+     * Dedupe by subjectId while preferring a record that actually has a poster. The
+     * same subject can appear both as a (cover-less) promo and as a full card; keep
+     * whichever carries a cover so rails never render blank posters.
+     */
+    private fun List<SubjectItem>.dedupePreferringCover(): List<SubjectItem> {
+        val byId = LinkedHashMap<String, SubjectItem>()
+        for (item in this) {
+            val existing = byId[item.subjectId]
+            if (existing == null ||
+                (existing.cover?.url.isNullOrBlank() && !item.cover?.url.isNullOrBlank())
+            ) {
+                byId[item.subjectId] = item
+            }
+        }
+        return byId.values.toList()
+    }
+
+    private fun encodeCache(contents: List<Content>): String =
+        json.encodeToString(cacheSerializer, contents.map { it.toCacheModel() })
+
+    private fun decodeCache(value: String): List<Content> =
+        runCatching {
+            json.decodeFromString(cacheSerializer, value).map { it.toContent() }
+        }.getOrDefault(emptyList<Content>())
+
+    private companion object {
+        const val CACHE_TTL_MS = 2L * 60 * 60 * 1000 // 2 hours
+        const val MAX_EPISODE_PAGES = 30 // safety cap: 30 * 20 = up to 600 resource rows
+    }
+}

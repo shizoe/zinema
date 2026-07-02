@@ -21,6 +21,7 @@ data class SubjectDetail(
     val imdbRatingValue: String? = null,
     val totalEpisode: Int? = null,
     val totalSeason: Int? = null,
+    val seNum: Int = 0,                   // season count (0 for movies); real field name
     val seasons: List<SeasonInfo>? = null,
     val episodes: List<EpisodeInfo>? = null,
     val trailerUrl: String? = null,

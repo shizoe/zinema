@@ -23,7 +23,20 @@ data class ContentBlock(
 
 @Serializable
 data class BannerBlock(
-    val banners: List<SubjectItem> = emptyList(),
+    val banners: List<BannerItem> = emptyList(),
+)
+
+/**
+ * A banner carousel entry. The top level only has the wide banner [image] +
+ * [subjectId]; the real poster/title/subjectType live in the nested [subject].
+ * Flattening the shell instead of [subject] was the cause of blank-poster,
+ * mis-typed cards in rails.
+ */
+@Serializable
+data class BannerItem(
+    val subjectId: String = "",
+    val image: CoverImage? = null,
+    val subject: SubjectItem? = null,
 )
 
 @Serializable
@@ -40,7 +53,7 @@ data class CustomItem(
 data class SubjectItem(
     val subjectId: String = "",
     val title: String = "",
-    val subjectType: Int = 1,            // 1=Movie, 2=Anime, 5=TV, 7=Short, 9=Sports
+    val subjectType: Int = 1,            // 1=Movie, 2=TV series, 5=Kids/cartoon, 6=Music, 7=Short, 9=Sports
     val cover: CoverImage? = null,
     val preVideoCover: CoverImage? = null,
     val imdbRatingValue: String? = null,

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- app_name lives in :app (Phase 0). Auth-feature strings (blueprint T-038b). -->
+    <string name="auth_wordmark">ZINEMA</string>
+    <string name="auth_tagline">Cinema without limits.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_sign_in">Sign In</string>
+    <string name="auth_continue">Continue</string>
+    <string name="auth_continue_as_guest">Continue as Guest</string>
+    <string name="auth_verify">Verify</string>
+    <string name="auth_resend_code">Resend code</string>
+    <string name="auth_use_different_email">Use a different email</string>
+    <string name="auth_code">Verification code</string>
+    <string name="auth_code_sent">Enter the code we sent to %1$s</string>
+    <string name="auth_create_account">Create your account — enter the code we sent to %1$s</string>
+    <string name="auth_choose_profile">Who\'s watching?</string>
+    <string name="auth_add_profile">Add Profile</string>
+    <string name="auth_manage_profiles">Manage Profiles</string>
+    <string name="auth_kids">Kids</string>
+    <string name="auth_enter_pin">Enter PIN</string>
+    <string name="auth_cancel">Cancel</string>
+    <string name="auth_ok">OK</string>
+</resources>

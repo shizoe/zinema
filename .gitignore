@@ -31,3 +31,9 @@ Thumbs.db
 
 # --- Logs ---
 *.log
+
+# --- Captured API traffic (mitmproxy dumps; contains tokens + PII) ---
+captured/
+
+# --- Decompiled reference APK (reverse-engineering aid, not source) ---
+moviebox_decoded/
