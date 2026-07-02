@@ -30,10 +30,12 @@ fun PlayerControls(
     positionMs: Long,
     durationMs: Long,
     currentQuality: String,
+    videoScaleLabel: String,
     onPlayPause: () -> Unit,
     onSeekTo: (Long) -> Unit,
     onToggleSubtitles: () -> Unit,
     onToggleQuality: () -> Unit,
+    onCycleScale: () -> Unit,
     onPip: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
@@ -86,6 +88,9 @@ fun PlayerControls(
                 Box(modifier = Modifier.weight(1f))
                 TextButton(onClick = onToggleSubtitles) {
                     Text(text = "CC", color = ZinemaColors.OnBackground)
+                }
+                TextButton(onClick = onCycleScale) {
+                    Text(text = videoScaleLabel, color = ZinemaColors.OnBackground)
                 }
                 TextButton(onClick = onToggleQuality) {
                     Text(
