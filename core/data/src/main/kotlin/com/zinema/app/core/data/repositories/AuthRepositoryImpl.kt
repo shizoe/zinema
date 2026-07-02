@@ -1,7 +1,9 @@
 package com.zinema.app.core.data.repositories
 
+import com.zinema.app.core.domain.model.EmailAccountStatus
 import com.zinema.app.core.domain.repository.AuthRepository
 import com.zinema.app.core.network.ApiService
+import com.zinema.app.core.network.dto.CheckEmailBody
 import com.zinema.app.core.network.dto.LoginRequestBody
 import com.zinema.app.core.security.TokenStorage
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +18,32 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun loginAsGuest(guestToken: String) {
         tokenStorage.saveToken(guestToken)
         tokenStorage.setGuest(true)
+    }
+
+    override suspend fun checkEmail(email: String): EmailAccountStatus {
+        val data = api.checkEmailExists(CheckEmailBody(mail = email)).data
+        return EmailAccountStatus(
+            exists = data?.exists ?: false,
+            hasPassword = data?.hasPassword ?: false,
+        )
+    }
+
+    override suspend fun sendEmailCode(email: String) {
+        val response = api.getSmsCode(LoginRequestBody(mail = email, type = 1, authType = 1))
+        if (response.code != 0) {
+            throw IllegalStateException(response.statusText.ifBlank { "Couldn't send the code." })
+        }
+    }
+
+    override suspend fun loginWithCode(email: String, code: String): String {
+        val response = api.checkSmsCode(
+            LoginRequestBody(mail = email, verificationCode = code, type = 1, authType = 1),
+        )
+        val token = response.data?.token?.takeIf { it.isNotBlank() }
+            ?: throw IllegalStateException(response.statusText.ifBlank { "Invalid or expired code." })
+        tokenStorage.saveToken(token)
+        tokenStorage.setGuest(false)
+        return token
     }
 
     override suspend fun loginWithCredentials(email: String, password: String): String {

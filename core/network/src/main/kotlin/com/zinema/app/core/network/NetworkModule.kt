@@ -82,6 +82,10 @@ object NetworkModule {
         val json = Json {
             ignoreUnknownKeys = true
             coerceInputValues = true
+            // Encode default-valued fields too, so request bodies carry the fields the
+            // server expects (e.g. type/authType, search page/perPage) — kotlinx omits
+            // them otherwise.
+            encodeDefaults = true
         }
         // charset=utf-8 matches the real client's Content-Type exactly, so the POST
         // body signature (which covers Content-Type) lines up (verified in capture).

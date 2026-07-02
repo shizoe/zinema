@@ -10,6 +10,7 @@ import com.zinema.app.core.network.dto.PlayInfoData
 import com.zinema.app.core.network.dto.SearchRequestBody
 import com.zinema.app.core.network.dto.SearchResultData
 import com.zinema.app.core.network.dto.SearchSuggestData
+import com.zinema.app.core.network.dto.SmsCodeResult
 import com.zinema.app.core.network.dto.SubjectDetail
 import com.zinema.app.core.network.dto.TabOperatingData
 import com.zinema.app.core.network.dto.UserInfoData
@@ -71,4 +72,10 @@ interface ApiService {
 
     @POST("wefeed-mobile-bff/user-api/check-mail-account")
     suspend fun checkEmailExists(@Body body: CheckEmailBody): ApiResponse<AccountExistsData>
+
+    @POST("wefeed-mobile-bff/user-api/get-sms-code")
+    suspend fun getSmsCode(@Body body: LoginRequestBody): ApiResponse<SmsCodeResult>
+
+    @POST("wefeed-mobile-bff/user-api/check-sms-code")
+    suspend fun checkSmsCode(@Body body: LoginRequestBody): ApiResponse<UserInfoData>
 }

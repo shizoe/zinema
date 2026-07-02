@@ -46,6 +46,10 @@ data class UserInfoData(
 @Serializable
 data class CheckEmailBody(val mail: String)
 
+/** get-sms-code response `data` (server returns null/minimal; we only check `code`). */
+@Serializable
+data class SmsCodeResult(val interval: Int = 0)
+
 /** check-mail-account response — confirmed `LoginCheckPhoneExistResult`. */
 @Serializable
 data class AccountExistsData(

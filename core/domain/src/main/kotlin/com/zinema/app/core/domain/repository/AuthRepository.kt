@@ -1,5 +1,6 @@
 package com.zinema.app.core.domain.repository
 
+import com.zinema.app.core.domain.model.EmailAccountStatus
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -14,7 +15,16 @@ interface AuthRepository {
     /** Persists a guest JWT, signing the user in as a guest. */
     suspend fun loginAsGuest(guestToken: String)
 
-    /** Credential login via the OneID endpoint; returns the issued token. */
+    /** Checks whether an email account exists and whether it has a password. */
+    suspend fun checkEmail(email: String): EmailAccountStatus
+
+    /** Sends an email verification code (get-sms-code). */
+    suspend fun sendEmailCode(email: String)
+
+    /** Verifies an email code (check-sms-code) and returns the issued token. */
+    suspend fun loginWithCode(email: String, code: String): String
+
+    /** Password login via user-api/login; returns the issued token. */
     suspend fun loginWithCredentials(email: String, password: String): String
 
     fun isLoggedIn(): Boolean
