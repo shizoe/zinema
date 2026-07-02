@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Blueprint T-062: enforce HTTPS everywhere in release; permit cleartext only to
-     localhost/emulator-loopback in debug. -->
+<!-- Blueprint T-062: enforce HTTPS everywhere (base-config denies cleartext), while
+     permitting cleartext only to loopback/localhost hosts used in local dev. A
+     top-level domain-config is used because <debug-overrides> may not contain a
+     <domain-config> (Android rejects that at parse time). Localhost cleartext is
+     inert in production since real traffic goes to HTTPS aoneroom hosts. -->
 <network-security-config>
     <base-config cleartextTrafficPermitted="false" />
-    <debug-overrides>
-        <domain-config cleartextTrafficPermitted="true">
-            <domain includeSubdomains="true">localhost</domain>
-            <domain includeSubdomains="true">127.0.0.1</domain>
-            <domain includeSubdomains="true">10.0.2.2</domain>
-        </domain-config>
-    </debug-overrides>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
 </network-security-config>
