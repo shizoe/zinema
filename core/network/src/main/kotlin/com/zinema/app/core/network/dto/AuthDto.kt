@@ -4,12 +4,16 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Login request/response models.
+ * Login models — confirmed against the decompiled client (`nx/a` API interface,
+ * `LoginSmsCodeRequest`, `com.transsnet.loginapi.bean.UserInfo`,
+ * `LoginCheckPhoneExistResult`).
  *
- * authType: 1 = email, 0 = phone. type: 1 = password, 2 = SMS code.
- * `check-mail-account` returns {exists, hasPassword} (confirmed): if hasPassword is
- * true, use password login via `user-api/login`; otherwise the client runs the
- * email→SMS flow (get-sms-code → check-sms-code).
+ * Login/registration all POST a [LoginRequestBody] and return `ApiResponse<UserInfoData>`.
+ * Flow (from check-mail-account → {exists, hasPassword}):
+ *   • exists && hasPassword → password login  (user-api/login, type=1/authType=1)
+ *   • exists && !hasPassword → SMS login       (get-sms-code → check-sms-code)
+ *   • !exists                → register        (get-sms-code → register)
+ * Password is sent as-is over HTTPS (no client-side RSA — verified in smali).
  */
 @Serializable
 data class LoginRequestBody(
@@ -21,29 +25,31 @@ data class LoginRequestBody(
     val authType: Int = 1,
     @SerialName("package_name") val packageName: String = "com.zinema.app",
     val verificationCode: String = "",
+    val inviteCode: String = "",
 )
 
-/**
- * Login response. ⚠️ NOT confirmed against a capture — no successful `user-api/login`
- * was in the traffic (the captured session logged in via SMS). We only read [token].
- * Non-token field names mirror the confirmed `user-api/profile/v2` userInfo object.
- */
+/** Login/register response `data` — the confirmed `UserInfo` bean. [token] is the JWT. */
 @Serializable
 data class UserInfoData(
     val token: String = "",
     val userId: String = "",
+    val username: String = "",
     val nickname: String = "",
     val avatar: String = "",
-    val mail: String = "",
+    val email: String = "",
     val phone: String = "",
+    val cc: String = "",
+    val shortId: String = "",
+    val userType: Int = 0,
 )
 
 @Serializable
 data class CheckEmailBody(val mail: String)
 
-/** check-mail-account response data (confirmed): {exists, hasPassword}. */
+/** check-mail-account response — confirmed `LoginCheckPhoneExistResult`. */
 @Serializable
 data class AccountExistsData(
     val exists: Boolean = false,
     val hasPassword: Boolean = false,
+    val reset: Boolean = false,
 )
